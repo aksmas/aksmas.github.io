@@ -25,6 +25,12 @@
     td .content {
         position: absolute;
     }
+
+    button .col {
+        width: 20%;
+        height: 40px;
+        position: relative;
+    }
 </style>
 
 <body>
@@ -97,14 +103,13 @@
 
         </table>
     </div>
-
-    <p> s123456789012 m123456789012123456789012</p>
 </body>
 
 <script src="http://davidbau.com/encode/seedrandom.min.js"></script>
 
 <script>
     var r="#ff8080", b ="#80ccff", y="#e5e7b1", x="#bfbfbf" ,g="#aec4a8";
+    var clist = [r, g, b, y, x];
     var sk, smk, turnMarker, ptype;
     var keyDisplay = document.getElementById("generatedKeys");
     var infoDisplay = document.getElementById("info");
@@ -116,10 +121,20 @@
     infoDisplay.style.display = "none";
     boardDisplay.style.display = "none";
 
+    function toggleWord(elem) {
+        let te = elem.getElementsByTagName("p")[0];
+        if (te.style.display === "none")
+            te.style.display = "block";
+        else te.style.display = "none";
+    }
+
     function hideword(elem) {
-        if (elem.firstElementChild.style.display === "none")
-            elem.firstElementChild.style.display = "block";
-        else elem.firstElementChild.style.display = "none";
+        if (!ptype) return;
+        toggleWord(elem);
+    }
+
+    function noWord(elem) {
+        toggleWord(elem.parentElement.parentElement);
     }
 
     function chooseStaringcolor(seed) {
@@ -154,15 +169,40 @@
         }
     }
 
+    function cellColor(cell, color) {
+        cell.style.backgroundColor = color;
+    }
+
     function renderColorKeys(colors) {
-        for (var i = 0; i < 25; i++) {
-            var cell = "c".concat((i+1).toString());
-            document.getElementById(cell).style.backgroundColor = colors[i];
+        var i, cell;
+        if (ptype) {
+            for (i = 0; i < 25; i++) {
+                cell = "c".concat((i+1).toString());
+                cellColor(document.getElementById(cell), colors[i]);
+            }
+        } else {
+            for (i = 0; i < 25; i++) {
+                cell = "c".concat((i+1).toString());
+                cellColor(document.getElementById(cell), g);
+            }
         }
     }
 
-    function renderColorButtons() {
+    function changeColor(elem, c) {
+        cellColor(elem.parentElement.parentElement, clist[c]);
+    }
 
+    function renderColorButtons() {
+        for (i = 0; i < 25; i++) {
+            cell = "d".concat((i+1).toString());
+            document.getElementById(cell).innerHTML +=
+                  "<button onclick='changeColor(this, 0)' style=\"width: 15%; height: 20px; background-color:" + r + "\"></button>"
+                + "<button onclick='changeColor(this, 1)' style=\"width: 15%; height: 20px; background-color:" + g + "\"></button>"
+                + "<button onclick='changeColor(this, 2)' style=\"width: 15%; height: 20px; background-color:" + b + "\"></button>"
+                + "<button onclick='changeColor(this, 3)' style=\"width: 15%; height: 20px; background-color:" + y + "\"></button>"
+                + "<button onclick='changeColor(this, 4)' style=\"width: 15%; height: 20px; background-color:" + x + "\"></button>"
+                + "<button onclick='noWord(this)' style=\"width: 15%; height: 20px; background-color:" + "#ffffff" + "\"></button>"
+        }
     }
 
     function renderPlayerType(pt) {
@@ -230,6 +270,9 @@
             let ck = joinKey.substr(13, 12);
             let cl = getColors(colorList, ck);
             renderColorKeys(cl);
+        } else {
+            renderColorKeys(0);
+            renderColorButtons();
         }
         infoDisplay.style.display = "block";
         boardDisplay.style.display = "block";
