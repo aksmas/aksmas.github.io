@@ -44,6 +44,7 @@
     <div id="generatedKeys" align="center">
         <p> Please share this key with only the two spymasters: <b id="spymaster"></b> <button onclick="joinWithKey(document.getElementById('spymaster').innerText)"> Join as Spymaster </button></p>
         <p> Share this key with all other players: <b id="spy"> </b> <button onclick="joinWithKey(document.getElementById('spy').innerText)"> Join as normal player </button></p>
+        <button onclick="hideKeys()"> Hide Keys </button>
         <br>
         <h2> OR </h2>
     </div>
@@ -120,6 +121,10 @@
     keyDisplay.style.display = "none";
     infoDisplay.style.display = "none";
     boardDisplay.style.display = "none";
+
+    function hideKeys() {
+        keyDisplay.style.display = "none";
+    }
 
     function toggleWord(elem) {
         let te = elem.getElementsByTagName("p")[0];
