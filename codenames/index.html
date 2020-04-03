@@ -2,9 +2,245 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/gif/png" href="https://images-na.ssl-images-amazon.com/images/I/71U0rcaCWPL.png">
     <title>Codenames</title>
 </head>
-<body>
 
+<style>
+    table {
+        width: 35%;
+        border: 1px;
+        border-color: #001c35;
+    }
+    td {
+        width: 20%;
+        position: relative;
+        background-color: #aec4a8;
+    }
+    td:after {
+        content: '';
+        display: block;
+        margin-top: 100%;
+    }
+    td .content {
+        position: absolute;
+    }
+</style>
+
+<body>
+    <h1 align="center"> Codenames </h1>
+
+    <div id="NewGame" align="center">
+        <br>
+        <button onclick="createNewGame()"> New Game </button>
+    </div>
+
+    <div id="generatedKeys" align="center">
+        <p> Please share this key with only the two spymasters: <b id="spymaster"></b> <button onclick="joinWithKey(document.getElementById('spymaster').innerText)"> Join as Spymaster </button></p>
+        <p> Share this key with all other players: <b id="spy"> </b> <button onclick="joinWithKey(document.getElementById('spy').innerText)"> Join as normal player </button></p>
+        <br>
+        <h2> OR </h2>
+    </div>
+
+    <div id="JoinGame" align="center">
+        <br>
+        <input type="text" id="key" name="Join Key">
+        <button onclick="joinWithKey(document.getElementById('key').value)"> Join Game </button>
+    </div>
+
+    <div id="info" align="center">
+        <p> You are playing as <b id="ptype"></b></p>
+        <p> <a id="turn"></a>  <button onclick="changeTurn()"> Next Turn </button></p>
+    </div>
+
+    <div id="board" align="center">
+        <table>
+            <tr>
+                <td id="c1" onclick="hideword(this)"><div class="content" id="d1"></div></td>
+                <td id="c2" onclick="hideword(this)"><div class="content" id="d2"></div></td>
+                <td id="c3" onclick="hideword(this)"><div class="content" id="d3"></div></td>
+                <td id="c4" onclick="hideword(this)"><div class="content" id="d4"></div></td>
+                <td id="c5" onclick="hideword(this)"><div class="content" id="d5"></div></td>
+            </tr>
+
+            <tr>
+                <td id="c6" onclick="hideword(this)"><div class="content" id="d6"></div></td>
+                <td id="c7" onclick="hideword(this)"><div class="content" id="d7"></div></td>
+                <td id="c8" onclick="hideword(this)"><div class="content" id="d8"></div></td>
+                <td id="c9" onclick="hideword(this)"><div class="content" id="d9"></div></td>
+                <td id="c10" onclick="hideword(this)"><div class="content" id="d10"></div></td>
+            </tr>
+
+            <tr>
+                <td id="c11" onclick="hideword(this)"><div class="content" id="d11"></div></td>
+                <td id="c12" onclick="hideword(this)"><div class="content" id="d12"></div></td>
+                <td id="c13" onclick="hideword(this)"><div class="content" id="d13"></div></td>
+                <td id="c14" onclick="hideword(this)"><div class="content" id="d14"></div></td>
+                <td id="c15" onclick="hideword(this)"><div class="content" id="d15"></div></td>
+            </tr>
+
+            <tr>
+                <td id="c16" onclick="hideword(this)"><div class="content" id="d16"></div></td>
+                <td id="c17" onclick="hideword(this)"><div class="content" id="d17"></div></td>
+                <td id="c18" onclick="hideword(this)"><div class="content" id="d18"></div></td>
+                <td id="c19" onclick="hideword(this)"><div class="content" id="d19"></div></td>
+                <td id="c20" onclick="hideword(this)"><div class="content" id="d20"></div></td>
+            </tr>
+
+            <tr>
+                <td id="c21" onclick="hideword(this)"><div class="content" id="d21"></div></td>
+                <td id="c22" onclick="hideword(this)"><div class="content" id="d22"></div></td>
+                <td id="c23" onclick="hideword(this)"><div class="content" id="d23"></div></td>
+                <td id="c24" onclick="hideword(this)"><div class="content" id="d24"></div></td>
+                <td id="c25" onclick="hideword(this)"><div class="content" id="d25"></div></td>
+            </tr>
+
+        </table>
+    </div>
+
+    <p> s123456789012 m123456789012123456789012</p>
 </body>
+
+<script src="http://davidbau.com/encode/seedrandom.min.js"></script>
+
+<script>
+    var r="#ff8080", b ="#80ccff", y="#e5e7b1", x="#bfbfbf" ,g="#aec4a8";
+    var sk, smk, turnMarker, ptype;
+    var keyDisplay = document.getElementById("generatedKeys");
+    var infoDisplay = document.getElementById("info");
+    var turnDisplay = document.getElementById("turn");
+    var playerDisplay = document.getElementById("ptype");
+    var boardDisplay = document.getElementById("board");
+
+    keyDisplay.style.display = "none";
+    infoDisplay.style.display = "none";
+    boardDisplay.style.display = "none";
+
+    function hideword(elem) {
+        if (elem.firstElementChild.style.display === "none")
+            elem.firstElementChild.style.display = "block";
+        else elem.firstElementChild.style.display = "none";
+    }
+
+    function chooseStaringcolor(seed) {
+        Math.seedrandom(seed);
+        turnMarker = Math.random() > 0.5;
+    }
+
+    function getColors(arra, seed) {
+        if (turnMarker)
+            return shuffle(arra.concat([b]), seed);
+        else return shuffle(arra.concat([r]), seed);
+    }
+
+    function shuffle(arra, seed) {
+        Math.seedrandom(seed);
+        let arra1 = [...arra];
+        var ctr = arra1.length, temp, index;
+        while (ctr > 0) {
+            index = Math.floor(Math.random() * ctr);
+            ctr--;
+            temp = arra1[ctr];
+            arra1[ctr] = arra1[index];
+            arra1[index] = temp;
+        }
+        return arra1;
+    }
+
+    function renderWords(words) {
+        for (var i = 0; i < 25; i++) {
+            var cell = "d".concat((i+1).toString());
+            document.getElementById(cell).innerHTML = "<p>" + words[i] + "</p>";
+        }
+    }
+
+    function renderColorKeys(colors) {
+        for (var i = 0; i < 25; i++) {
+            var cell = "c".concat((i+1).toString());
+            document.getElementById(cell).style.backgroundColor = colors[i];
+        }
+    }
+
+    function renderColorButtons() {
+
+    }
+
+    function renderPlayerType(pt) {
+        if (ptype) playerDisplay.innerText = "Spy Master";
+        else playerDisplay.innerText = "Ordinary Spy";
+    }
+
+    function renderTurn() {
+        if (turnMarker) {
+            turnDisplay.innerText = "Blue Turn";
+            turnDisplay.style.backgroundColor = b;
+        }
+        else {
+            turnDisplay.innerText = "Red Turn";
+            turnDisplay.style.backgroundColor = r;
+        }
+    }
+
+    function changeTurn() {
+        turnMarker = !turnMarker;
+        renderTurn();
+    }
+
+    function pureRandomKey() {
+        Math.seedrandom();
+        return Math.random().toFixed(12).toString().substr(2, 12);
+    }
+
+    function createNewGame() {
+        let k = pureRandomKey();
+        sk = "s".concat(k);
+        smk = "m".concat(k).concat(pureRandomKey());
+        document.getElementById("spy").innerHTML = sk;
+        document.getElementById("spymaster").innerHTML = smk;
+        keyDisplay.style.display = "block";
+    }
+
+    function validKey(key) {
+        let valid = true;
+        if (key.length === 0) valid = false;
+        let p = key.substr(0, 1);
+        if (p === "m") {
+            if (key.length !== 25) valid = false;
+            else ptype = true;
+        }
+        else if (p === "s") {
+            if (key.length !== 13) valid = false;
+            else ptype = false;
+        }
+        else valid = false;
+
+        if (!valid) alert("Invalid Key");
+        return valid;
+    }
+
+    function joinWithKey(joinKey) {
+        if (!validKey(joinKey)) return;
+        let wk = joinKey.substr(1, 12);
+        chooseStaringcolor(wk);
+        renderTurn();
+        renderPlayerType(ptype);
+        let wl = shuffle(wordList, wk);
+        renderWords(wl);
+        if (ptype) {
+            let ck = joinKey.substr(13, 12);
+            let cl = getColors(colorList, ck);
+            renderColorKeys(cl);
+        }
+        infoDisplay.style.display = "block";
+        boardDisplay.style.display = "block";
+
+    }
+
+
+    var wordList = ["Acne", "Acre", "Addendum", "Advertise", "Aircraft", "Aisle", "Alligator", "Alphabetize", "America", "Ankle", "Apathy", "Applause", "Applesauce", "Application", "Archaeologist", "Aristocrat", "Arm", "Armada", "Asleep", "Astronaut", "Athlete", "Atlantis", "Aunt", "Avocado", "Baby-Sitter", "Backbone", "Bag", "Baguette", "Bald", "Balloon", "Banana", "Banister", "Baseball", "Baseboards", "Basketball", "Bat", "Battery", "Beach", "Beanstalk", "Bedbug", "Beer", "Beethoven", "Belt", "Bib", "Bicycle", "Big", "Bike", "Billboard", "Bird", "Birthday", "Bite", "Blacksmith", "Blanket", "Bleach", "Blimp", "Blossom", "Blueprint", "Blunt", "Blur", "Boa", "Boat", "Bob", "Bobsled", "Body", "Bomb", "Bonnet", "Book", "Booth", "Bowtie", "Box", "Boy", "Brainstorm", "Brand", "Brave", "Bride", "Bridge", "Broccoli", "Broken", "Broom", "Bruise", "Brunette", "Bubble", "Buddy", "Buffalo", "Bulb", "Bunny", "Bus", "Buy", "Cabin", "Cafeteria", "Cake", "Calculator", "Campsite", "Can", "Canada", "Candle", "Candy", "Cape", "Capitalism", "Car", "Cardboard", "Cartography", "Cat", "Cd", "Ceiling", "Cell", "Century", "Chair", "Chalk", "Champion", "Charger", "Cheerleader", "Chef", "Chess", "Chew", "Chicken", "Chime", "China", "Chocolate", "Church", "Circus", "Clay", "Cliff", "Cloak", "Clockwork", "Clown", "Clue", "Coach", "Coal", "Coaster", "Cog", "Cold", "College", "Comfort", "Computer", "Cone", "Constrictor", "Continuum", "Conversation", "Cook", "Coop", "Cord", "Corduroy", "Cot", "Cough", "Cow", "Cowboy", "Crayon", "Cream", "Crisp", "Criticize", "Crow", "Cruise", "Crumb", "Crust", "Cuff", "Curtain", "Cuticle", "Czar", "Dad", "Dart", "Dawn", "Day", "Deep", "Defect", "Dent", "Dentist", "Desk", "Dictionary", "Dimple", "Dirty", "Dismantle", "Ditch", "Diver", "Doctor", "Dog", "Doghouse", "Doll", "Dominoes", "Door", "Dot", "Drain", "Draw", "Dream", "Dress", "Drink", "Drip", "Drums", "Dryer", "Duck", "Dump", "Dunk", "Dust", "Ear", "Eat", "Ebony", "Elbow", "Electricity", "Elephant", "Elevator", "Elf", "Elm", "Engine", "England", "Ergonomic", "Escalator", "Eureka", "Europe", "Evolution", "Extension", "Eyebrow", "Fan", "Fancy", "Fast", "Feast", "Fence", "Feudalism", "Fiddle", "Figment", "Finger", "Fire", "First", "Fishing", "Fix", "Fizz", "Flagpole", "Flannel", "Flashlight", "Flock", "Flotsam", "Flower", "Flu", "Flush", "Flutter", "Fog", "Foil", "Football", "Forehead", "Forever", "Fortnight", "France", "Freckle", "Freight", "Fringe", "Frog", "Frown", "Gallop", "Game", "Garbage", "Garden", "Gasoline", "Gem", "Ginger", "Gingerbread", "Girl", "Glasses", "Goblin", "Gold", "Goodbye", "Grandpa", "Grape", "Grass", "Gratitude", "Gray", "Green", "Guitar", "Gum", "Gumball", "Hair", "Half", "Handle", "Handwriting", "Hang", "Happy", "Hat", "Hatch", "Headache", "Heart", "Hedge", "Helicopter", "Hem", "Hide", "Hill", "Hockey", "Homework", "Honk", "Hopscotch", "Horse", "Hose", "Hot", "House", "Houseboat", "Hug", "Humidifier", "Hungry", "Hurdle", "Hurt", "Hut", "Ice", "Implode", "Inn", "Inquisition", "Intern", "Internet", "Invitation", "Ironic", "Ivory", "Ivy", "Jade", "Japan", "Jeans", "Jelly", "Jet", "Jig", "Jog", "Journal", "Jump", "Key", "Killer", "Kilogram", "King", "Kitchen", "Kite", "Knee", "Kneel", "Knife", "Knight", "Koala", "Lace", "Ladder", "Ladybug", "Lag", "Landfill", "Lap", "Laugh", "Laundry", "Law", "Lawn", "Lawnmower", "Leak", "Leg", "Letter", "Level", "Lifestyle", "Ligament", "Light", "Lightsaber", "Lime", "Lion", "Lizard", "Log", "Loiterer", "Lollipop", "Loveseat", "Loyalty", "Lunch", "Lunchbox", "Lyrics", "Machine", "Macho", "Mailbox", "Mammoth", "Mark", "Mars", "Mascot", "Mast", "Matchstick", "Mate", "Mattress", "Mess", "Mexico", "Midsummer", "Mine", "Mistake", "Modern", "Mold", "Mom", "Monday", "Money", "Monitor", "Monster", "Mooch", "Moon", "Mop", "Moth", "Motorcycle", "Mountain", "Mouse", "Mower", "Mud", "Music", "Mute", "Nature", "Negotiate", "Neighbor", "Nest", "Neutron", "Niece", "Night", "Nightmare", "Nose", "Oar", "Observatory", "Office", "Oil", "Old", "Olympian", "Opaque", "Opener", "Orbit", "Organ", "Organize", "Outer", "Outside", "Ovation", "Overture", "Pail", "Paint", "Pajamas", "Palace", "Pants", "Paper", "Paper", "Park", "Parody", "Party", "Password", "Pastry", "Pawn", "Pear", "Pen", "Pencil", "Pendulum", "Penis", "Penny", "Pepper", "Personal", "Philosopher", "Phone", "Photograph", "Piano", "Picnic", "Pigpen", "Pillow", "Pilot", "Pinch", "Ping", "Pinwheel", "Pirate", "Plaid", "Plan", "Plank", "Plate", "Platypus", "Playground", "Plow", "Plumber", "Pocket", "Poem", "Point", "Pole", "Pomp", "Pong", "Pool", "Popsicle", "Population", "Portfolio", "Positive", "Post", "Princess", "Procrastinate", "Protestant", "Psychologist", "Publisher", "Punk", "Puppet", "Puppy", "Push", "Puzzle", "Quarantine", "Queen", "Quicksand", "Quiet", "Race", "Radio", "Raft", "Rag", "Rainbow", "Rainwater", "Random", "Ray", "Recycle", "Red", "Regret", "Reimbursement", "Retaliate", "Rib", "Riddle", "Rim", "Rink", "Roller", "Room", "Rose", "Round", "Roundabout", "Rung", "Runt", "Rut", "Sad", "Safe", "Salmon", "Salt", "Sandbox", "Sandcastle", "Sandwich", "Sash", "Satellite", "Scar", "Scared", "School", "Scoundrel", "Scramble", "Scuff", "Seashell", "Season", "Sentence", "Sequins", "Set", "Shaft", "Shallow", "Shampoo", "Shark", "Sheep", "Sheets", "Sheriff", "Shipwreck", "Shirt", "Shoelace", "Short", "Shower", "Shrink", "Sick", "Siesta", "Silhouette", "Singer", "Sip", "Skate", "Skating", "Ski", "Slam", "Sleep", "Sling", "Slow", "Slump", "Smith", "Sneeze", "Snow", "Snuggle", "Song", "Space", "Spare", "Speakers", "Spider", "Spit", "Sponge", "Spool", "Spoon", "Spring", "Sprinkler", "Spy", "Square", "Squint", "Stairs", "Standing", "Star", "State", "Stick", "Stockholder", "Stoplight", "Stout", "Stove", "Stowaway", "Straw", "Stream", "Streamline", "Stripe", "Student", "Sun", "Sunburn", "Sushi", "Swamp", "Swarm", "Sweater", "Swimming", "Swing", "Tachometer", "Talk", "Taxi", "Teacher", "Teapot", "Teenager", "Telephone", "Ten", "Tennis", "Thief", "Think", "Throne", "Through", "Thunder", "Tide", "Tiger", "Time", "Tinting", "Tiptoe", "Tiptop", "Tired", "Tissue", "Toast", "Toilet", "Tool", "Toothbrush", "Tornado", "Tournament", "Tractor", "Train", "Trash", "Treasure", "Tree", "Triangle", "Trip", "Truck", "Tub", "Tuba", "Tutor", "Television", "Twang", "Twig", "Twitterpated", "Type", "Unemployed", "Upgrade", "Vest", "Vision", "Wag", "Water", "Watermelon", "Wax", "Wedding", "Weed", "Welder", "Whatever", "Wheelchair", "Whiplash", "Whisk", "Whistle", "White", "Wig", "Will", "Windmill", "Winter", "Wish", "Wolf", "Wool", "World", "Worm", "Wristwatch", "Yardstick", "Zamboni", "Zen", "Zero", "Zipper", "Zone", "Zoo"];
+    var colorList = [x, r, r, r, r, r, r, r, r, b, b, b, b, b, b, b, b, y, y, y, y, y, y, y];
+
+    
+</script>
+
 </html>
