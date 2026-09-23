@@ -1,0 +1,9 @@
+# Full-size original photos live here locally but are NOT committed/published.
+# The page serves the optimized copies in photos/web/ instead.
+photos/*.jpg
+photos/*.jpeg
+photos/*.png
+photos/*.heic
+
+# ...but do keep the optimized web versions that the page actually uses.
+!photos/web/
